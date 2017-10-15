@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>{{title}}</h1>
+    <!-- <form method='post'>
+        <label>
+            New Title:
+            <input type="text" name='title' />
+        </label>
+    </br>
+        <label>
+            New Post:
+            <textarea name='body'></textarea>
+        </label>
+        <input type="submit" value='Post' />
+    </form>
+
+    <hr /> !-->
+
+     {% if blogs|length == 0 %}
+    <p>No new posts yet</p>
+    {% else %}
+
+         <ul>
+            {% for blog in blogs %}
+            <h3>{{blog.title}}</h3>
+            <blockquote>{{blog.body}}</blockquote></br>
+           
+            {% endfor %}
+        </ul>
+    
+    {% endif %}
+    
+    <!-- <hr />
+
+    <h2>Completed</h2>
+        
+        <ul>
+            {% for task in completed_tasks %}
+            <li>{{task.name}}</li>
+            {% endfor %}
+        </ul>   !-->
+
+    
+{% endblock %}
