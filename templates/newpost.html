@@ -1,21 +1,33 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>{{title}}</h1>
-    <h2>{{subtitle}}</h2>
-    <form method='post'>
-        <label>
-            New Title:
-            <input type="text" name='title' />
-        </label>
-    </br>
-        <label>
-            New Post:
-            <textarea name='body'></textarea>
-        </label>
-        <input type="submit" value='Post' />
-    </form>
 
-    <hr />
+        <head>
+            <h1>{{title_main}}</h1>
+            <h2>{{subtitle}}</h2>
+            <style>
+                .error {color: red;}
+            </style>
+        </head>
+        <body>
+            <form method='POST'>
+                <table>
+                    <tr>
+                    <td><label>New Title:</label></td>
+                        <td><input type="text" name="title" value="{{ title }}" required/>
+                        <span class="error">{{title_error}}</span></td>
+                    </tr>
+                    <tr>
+                    <td><label>New Post:</label></td>
+                        <td><textarea name="body" rows="5", cols="120" required />{{ body }}</textarea>
+                        <span class="error">{{post_error}}</span></td>
+                    </tr>
+                   
+                </table>
+                <input type="submit" value="Submit" />
+            </form>
+        </body>
+
+    
   
 {% endblock %}
