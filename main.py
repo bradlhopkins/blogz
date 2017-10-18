@@ -19,7 +19,6 @@ class Blog(db.Model):
     body = db.Column(db.String(10000))
 
     def __init__(self, title, body):
-        self.name = title
         self.title = title
         self.body = body
 
@@ -33,11 +32,18 @@ def index():
         #db.session.add(new_post)
         #db.session.commit()
     
+    id = request.args.get('id')
+    
 
-    blogs = Blog.query.all()
+    if id == None:
+        blogs = Blog.query.all()
 
-    return render_template('blog.html', title_main="Hello Blog",
-        blogs=blogs) #, completed_tasks=completed_tasks)
+        return render_template('blog.html', title_main="Hello Blog",
+            blogs=blogs) 
+
+    else:
+        entry = Blog.query.get(id)
+        return render_template('blog-entry.html', title_main="Hello Blog", entry=entry, id=id)
 
 @app.route('/newpost', methods=['POST', 'GET'])
 def new_post():
