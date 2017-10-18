@@ -1,4 +1,4 @@
-from flask import Flask, request, redirect, render_template
+from flask import Flask, request, redirect, render_template, session, flash
 from flask_sqlalchemy import SQLAlchemy
 import cgi
 
@@ -9,8 +9,6 @@ app.config['SQLALCHEMY_ECHO'] = True
 db = SQLAlchemy(app)
 # Note: the connection string after :// contains the following info:
 # user:password@server:portNumber/databaseName
-
-tasks = []
 
 class Blog(db.Model):
     
@@ -24,26 +22,24 @@ class Blog(db.Model):
 
 @app.route('/', methods=['POST', 'GET'])
 def index():
-
-    #if request.method == 'POST':
-        #blog_title = request.form['title']
-        #blog_post = request.form['body']
-        #new_post = Blog(blog_title, blog_post)
-        #db.session.add(new_post)
-        #db.session.commit()
     
+    blogs = Blog.query.all()
+
+    return render_template('blog.html', title_main="Hello Blog", blogs=blogs) 
+
+@app.route('/blog', methods=['POST', 'GET'])
+def weblog():
     id = request.args.get('id')
     
-
     if id == None:
         blogs = Blog.query.all()
 
-        return render_template('blog.html', title_main="Hello Blog",
-            blogs=blogs) 
+        return render_template('blog.html', title_main="Hello Blog", blogs=blogs) 
 
     else:
-        entry = Blog.query.get(id)
-        return render_template('blog-entry.html', title_main="Hello Blog", entry=entry, id=id)
+        blog = Blog.query.get(id)
+        return render_template('blog-entry.html', title_main="Hello Blog", blog=blog)
+    
 
 @app.route('/newpost', methods=['POST', 'GET'])
 def new_post():
@@ -62,8 +58,6 @@ def new_post():
         blog_title = request.form['title']
         blog_post = request.form['body']
         new_post = Blog(blog_title, blog_post)
-        #db.session.add(new_post)
-        #db.session.commit()
 
     #Title verification
     if len(blog_title) == 0:
