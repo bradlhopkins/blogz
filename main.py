@@ -17,17 +17,17 @@ class Blog(db.Model):
     body = db.Column(db.String(10000))
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
-    def __init__(self, title, body, blog_user_id):
+    def __init__(self, title, body, owner):
         self.title = title
         self.body = body
-        self.blog_user_id = blog_user_id
+        self.owner = owner
 
 class User(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(20))
     password = db.Column(db.String(20))
-    blogs = db.relationship('Blog', backref='user')
+    blogs = db.relationship(Blog, backref='owner')
 
 
     def __init__(self, username, password):
@@ -81,22 +81,39 @@ def signup():
 @app.route('/', methods=['POST', 'GET'])
 def index():
     
-    blogs = Blog.query.all()
+    users = User.query.all()
 
-    return render_template('blog.html', title_main="Hello Blog", blogs=blogs) 
+    return render_template('index.html', title_main="Hello Blog", users=users) 
 
 @app.route('/blog', methods=['POST', 'GET'])
 def weblog():
-    id = request.args.get('id')
+    blogs = Blog.query.all()
+
+    #return render_template('blog.html', title_main="Hello Blog", blogs=blogs) 
     
-    if id == None:
-        blogs = Blog.query.all()
+    id = request.args.get('id')
 
-        return render_template('blog.html', title_main="Hello Blog", blogs=blogs) 
-
-    else:
+    userId = request.args.get('owner_id')
+    
+    if id:
         blog = Blog.query.get(id)
         return render_template('blog-entry.html', title_main="Hello Blog", blog=blog)
+
+    if userId:
+        blogs = Blog.query.filter_by(owner_id=userId).all()
+        return render_template('singleUser.html', title_main="Hello Blog", blogs=blogs)
+         
+    else:
+        blogs = Blog.query.all()
+
+        return render_template('blog.html', title_main="Hello Blog", blogs=blogs)
+
+    #if userId == None:
+       # blogs = Blog.query.all()
+
+        #return render_template('blog.html', title_main="Hello Blog", blogs=blogs) 
+
+    
     
 
 @app.route('/newpost', methods=['POST', 'GET'])
@@ -109,7 +126,8 @@ def new_post():
     title = ''
     body = ''
 
-    blog_user_id = request.args.get('owner_id')
+    owner = User.query.filter_by(username=session['username']).first()
+    
     
     if request.method == 'GET':
         return render_template('newpost.html', title_main="Hello Blog", subtitle="Add a new blog post.")
@@ -117,7 +135,7 @@ def new_post():
     if request.method == 'POST':
         blog_title = request.form['title']
         blog_post = request.form['body']
-        new_post = Blog(blog_title, blog_post, blog_user_id)
+        new_post = Blog(blog_title, blog_post, owner)
 
     #Title verification
     if len(blog_title) == 0:
@@ -130,7 +148,9 @@ def new_post():
         db.session.add(new_post)
         db.session.commit()
 
-        return redirect('/')
+        #return redirect('/')
+
+        return render_template('blog-entry.html', title_main="Hello Blog", blog=new_post)
 
     else:
         return render_template('newpost.html', title_main=title_main, subtitle=subtitle, title=blog_title, body=blog_post, title_error=title_error, post_error=post_error)
