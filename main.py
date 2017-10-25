@@ -87,17 +87,16 @@ def index():
 
 @app.route('/blog', methods=['POST', 'GET'])
 def weblog():
-    blogs = Blog.query.all()
-
-    #return render_template('blog.html', title_main="Hello Blog", blogs=blogs) 
-    
     id = request.args.get('id')
-
+    users = User.query.all()
+    username = request.args.get('user')
     userId = request.args.get('owner_id')
+
     
     if id:
         blog = Blog.query.get(id)
-        return render_template('blog-entry.html', title_main="Hello Blog", blog=blog)
+        user = Blog.query.filter_by(owner_id=id).all()
+        return render_template('blog-entry.html', title_main="Hello Blog", blog=blog, user=user)
 
     if userId:
         blogs = Blog.query.filter_by(owner_id=userId).all()
@@ -108,14 +107,7 @@ def weblog():
 
         return render_template('blog.html', title_main="Hello Blog", blogs=blogs)
 
-    #if userId == None:
-       # blogs = Blog.query.all()
-
-        #return render_template('blog.html', title_main="Hello Blog", blogs=blogs) 
-
-    
-    
-
+  
 @app.route('/newpost', methods=['POST', 'GET'])
 def new_post():
     
@@ -137,7 +129,7 @@ def new_post():
         blog_post = request.form['body']
         new_post = Blog(blog_title, blog_post, owner)
 
-    #Title verification
+    #Title and content verification
     if len(blog_title) == 0:
         title_error = 'Please enter a title.'
 
@@ -147,8 +139,6 @@ def new_post():
     if not title_error and not post_error:
         db.session.add(new_post)
         db.session.commit()
-
-        #return redirect('/')
 
         return render_template('blog-entry.html', title_main="Hello Blog", blog=new_post)
 
@@ -160,15 +150,8 @@ def logout():
     del session['username']
     return redirect('/blog')
 
-    
-#@app.route('/logout', methods=['POST'])
-#def logout():
-
-
 
 if __name__ == '__main__':
     app.secret_key = 'super secret key'
-    #app.config['SESSION_TYPE'] = 'filesystem'
-
     app.debug = True
     app.run()
